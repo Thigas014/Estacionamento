@@ -16,3 +16,30 @@ Este projeto visa desenvolver um sistema de monitoramento inteligente, usando vi
 ![NumPy](https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white)
 
 </div>
+
+
+## Como Executar
+### Pré-requisitos
+
+- **Python**
+- **OpenCV**
+- **CVZone**
+- **Numpy**
+
+### Passos para execução
+
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/Thigas014/Estacionamento.git
+   cd Estacionamento/
+   ```
+
+2. Instale as depêndencias:
+   ```bash
+    pip freeze > requirements.txt
+   ```
+
+3. Execute o projeto:
+   ```bash
+   python main.py
+   ```

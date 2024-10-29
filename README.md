@@ -36,7 +36,7 @@ Este projeto visa desenvolver um sistema de monitoramento inteligente, usando vi
 
 2. Instale as depêndencias:
    ```bash
-    pip freeze > requirements.txt
+    python -m pip install -r requirements.txt
    ```
 
 3. Execute o projeto:

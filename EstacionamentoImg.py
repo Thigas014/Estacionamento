@@ -1,11 +1,11 @@
 import cv2
 import pickle
 
-largura, altura = 150,200
+largura, altura = 200,100
 
 
 try:
-    with open('teste1pos', 'rb') as f:
+    with open('mdf2pos', 'rb') as f:
         posList = pickle.load(f)
 except:
     posList = []
@@ -20,12 +20,14 @@ def mouseClick(events, x, y, flags, params):
             if x1 < x < x1 + largura and y1 < y < y1 + altura:
                 posList.pop(i)
 
-    with open('teste1pos', 'wb') as f:
+    with open('mdf2pos', 'wb') as f:
         pickle.dump(posList, f)
 
 
 while True:
-    img = cv2.imread('teste1.jpeg')
+    img = cv2.imread('mdf2.jpeg')
+    img = cv2.resize(img, (1200, 720))  # Redimensiona para 800x600 pixels
+
     for pos in posList:
         cv2.rectangle(img, pos, (pos[0] + largura, pos[1] + altura), (255, 0, 255), 2)
 

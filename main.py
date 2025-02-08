@@ -4,7 +4,7 @@ import cvzone
 import numpy as np
 
 # Captura de vídeo da webcam
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)  # Define largura da webcam
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # Define altura da webcam
 
@@ -13,11 +13,9 @@ with open('mdf2pos', 'rb') as f:
     posList = pickle.load(f)
 
 # Define o tamanho das vagas
-largura, altura = 200,100
+largura, altura = 200, 100
 
 # Função para verificar a ocupação das vagas
-
-
 def verificarVaga(imgPro):
     contadorEspaco = 0
 
@@ -28,7 +26,7 @@ def verificarVaga(imgPro):
         count = cv2.countNonZero(imgCorte)
 
         # **MODO DEBUG:** Exibir valores para calibração
-       # print(f'Vaga em ({x}, {y}) - Pixels brancos: {count}')
+        # print(f'Vaga em ({x}, {y}) - Pixels brancos: {count}')
 
         # Ajuste do limiar para definir se está ocupado ou não
         if count < 5000:  # Aumentado para melhor detecção
@@ -48,6 +46,9 @@ def verificarVaga(imgPro):
     cvzone.putTextRect(img, f'Vagas Livres: {contadorEspaco}/{len(posList)}', (50, 50), scale=2,
                        thickness=3, offset=10, colorR=(0, 200, 0))
 
+
+# Inicializa a janela de exibição uma vez
+cv2.namedWindow("Detecção de Vagas", cv2.WINDOW_NORMAL)
 
 # Loop principal
 while True:
@@ -73,7 +74,7 @@ while True:
     cv2.imshow("Detecção de Vagas", img)
 
     # Pressione 'q' para sair
-    if cv2.waitKey(10) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 # Libera os recursos

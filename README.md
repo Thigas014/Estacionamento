@@ -4,6 +4,7 @@ Código criado como parte do projeto: "**Desenvolvimento de Sistema de Monitoram
 
 Este projeto visa desenvolver um sistema de monitoramento inteligente, usando visão computacional, para melhorar a segurança em instituições educacionais. Analisa em tempo real para detectar entradas não autorizadas e estacionamento inadequado, promovendo uma gestão proativa.
 
+Nessa branch especifica está uma implementação criada para a testagem numa marquete de estacionamento.
 
 ## Tecnologias Usadas
 
@@ -16,3 +17,35 @@ Este projeto visa desenvolver um sistema de monitoramento inteligente, usando vi
 ![NumPy](https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white)
 
 </div>
+
+
+## Como Executar
+### Pré-requisitos
+
+- **Python**
+- **OpenCV**
+- **CVZone**
+- **Numpy**
+
+### Passos para execução
+
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/Thigas014/Estacionamento.git
+   cd Estacionamento/
+   ```
+
+2. Mude para a branch atual:
+   ```bash
+   git switch papel
+   ```
+
+2. Instale as depêndencias:
+   ```bash
+    python -m pip install -r requirements.txt
+   ```
+
+3. Execute o projeto:
+   ```bash
+   python main.py
+   ```

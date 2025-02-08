@@ -22,18 +22,18 @@ def verificarVaga(imgPro):
     for pos in posList:
         x, y = pos
         imgCorte = imgPro[y:y+altura, x:x+largura]
-        # Conta pixels brancos (ocupação da vaga)
-        count = cv2.countNonZero(imgCorte)
+        # Conta pixels pretos (vaga livre)
+        count = cv2.countNonZero(cv2.bitwise_not(imgCorte))  # Conta pixels pretos
 
         # **MODO DEBUG:** Exibir valores para calibração
-        # print(f'Vaga em ({x}, {y}) - Pixels brancos: {count}')
+        # print(f'Vaga em ({x}, {y}) - Pixels pretos: {count}')
 
-        # Ajuste do limiar para definir se está ocupado ou não
-        if count < 5000:  # Aumentado para melhor detecção
+        # Ajuste do limiar para definir se está livre ou ocupada
+        if count < 5000:  # Se houver mais pixels escuros (vaga livre)
             color = (0, 255, 0)  # Verde = vaga livre
             espessura = 5
             contadorEspaco += 1
-        else:
+        else:  # Caso contrário, é marcada como ocupada
             color = (0, 0, 255)  # Vermelho = vaga ocupada
             espessura = 2
 

@@ -3,74 +3,72 @@ import pickle
 import cvzone
 import numpy as np
 
-# Captura de vídeo da webcam
-cap = cv2.VideoCapture(2)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)  # Define largura da webcam
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # Define altura da webcam
+# Carrega vídeo da câmera RTSP
+cap = cv2.VideoCapture('rtsp://admin:admin123456@10.12.12.181:8554/profile0')
 
-# Carrega posições das vagas
-with open('mdf2pos', 'rb') as f:
+# Carrega as posições das vagas (cada vaga tem 4 pontos)
+with open('estacionamentopos.pkl', 'rb') as f:
     posList = pickle.load(f)
 
-# Define o tamanho das vagas
-largura, altura = 200, 100
-
-# Função para verificar a ocupação das vagas
+# Função para verificar se a vaga está ocupada
 def verificarVaga(imgPro):
     contadorEspaco = 0
 
-    for pos in posList:
-        x, y = pos
-        imgCorte = imgPro[y:y+altura, x:x+largura]
-        # Conta pixels brancos (ocupação da vaga)
-        count = cv2.countNonZero(imgCorte)
+    for pontos in posList:
+        # Converte os pontos para formato adequado
+        pts = np.array(pontos, np.int32)
+        pts = pts.reshape((-1, 1, 2))
 
-        # **MODO DEBUG:** Exibir valores para calibração
-        # print(f'Vaga em ({x}, {y}) - Pixels brancos: {count}')
+        # Cria uma máscara da vaga
+        mascara = np.zeros_like(imgPro)
+        cv2.fillPoly(mascara, [pts], 255)
 
-        # Ajuste do limiar para definir se está ocupado ou não
-        if count < 5000:  # Aumentado para melhor detecção
-            color = (0, 255, 0)  # Verde = vaga livre
+        # Aplica a máscara na imagem processada
+        vagaArea = cv2.bitwise_and(imgPro, imgPro, mask=mascara)
+
+        # Conta pixels brancos (ocupação)
+        count = cv2.countNonZero(vagaArea)
+
+        # Define estado da vaga
+        if count < 2000:
+            color = (0, 255, 0)  # Livre
             espessura = 5
             contadorEspaco += 1
         else:
-            color = (0, 0, 255)  # Vermelho = vaga ocupada
+            color = (0, 0, 255)  # Ocupada
             espessura = 2
 
-        # Desenha o retângulo na imagem
-        cv2.rectangle(img, (x, y), (x + largura, y + altura), color, espessura)
-        cvzone.putTextRect(img, str(count), (x, y + altura - 3),
+        # Desenha o polígono da vaga
+        cv2.polylines(img, [pts], isClosed=True, color=color, thickness=espessura)
+        cvzone.putTextRect(img, str(count), (pts[0][0][0], pts[0][0][1] - 5),
                            scale=1, thickness=2, offset=0, colorR=color)
 
-    # Exibe a contagem de vagas livres
-    cvzone.putTextRect(img, f'Vagas Livres: {contadorEspaco}/{len(posList)}', (50, 50), scale=2,
-                       thickness=3, offset=10, colorR=(0, 200, 0))
+    # Exibe total de vagas livres
+    cvzone.putTextRect(img, f'Vagas Livres: {contadorEspaco}/{len(posList)}',
+                       (50, 50), scale=2, thickness=3, offset=10, colorR=(0, 200, 0))
 
-
-# Inicializa a janela de exibição uma vez
+# Janela redimensionável
 cv2.namedWindow("Detecção de Vagas", cv2.WINDOW_NORMAL)
 
 # Loop principal
 while True:
     sucesso, img = cap.read()
     if not sucesso:
-        break  # Sai se a captura falhar
+        print("Falha ao capturar vídeo.")
+        break
 
-    # **Novo Pré-processamento**
+    # Pré-processamento da imagem
     imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     imgBlur = cv2.GaussianBlur(imgGray, (3, 3), 1)
-
-    # Substituindo o `adaptiveThreshold` por um limiar fixo
     _, imgThreshold = cv2.threshold(imgBlur, 100, 255, cv2.THRESH_BINARY_INV)
-
     imgMedio = cv2.medianBlur(imgThreshold, 5)
     kernel = np.ones((3, 3), np.uint8)
     imgDilatada = cv2.dilate(imgMedio, kernel, iterations=1)
 
-    # Verifica ocupação das vagas
+    # Verifica as vagas
     verificarVaga(imgDilatada)
 
-    # Exibe o resultado
+    # Mostra o resultado
     cv2.imshow("Detecção de Vagas", img)
 
     # Pressione 'q' para sair

@@ -10,13 +10,21 @@ cap = cv2.VideoCapture('rtsp://admin:admin123456@10.12.12.181:8554/profile0')
 with open('estacionamentopos.pkl', 'rb') as f:
     posList = pickle.load(f)
 
-# Função para verificar se a vaga está ocupada
-def verificarVaga(imgPro):
+# Dimensão base da imagem onde marcou as vagas
+IMG_WIDTH, IMG_HEIGHT = 1920, 1080
+
+def verificarVaga(imgPro, frame_width, frame_height):
     contadorEspaco = 0
 
     for pontos in posList:
-        # Converte os pontos para formato adequado
-        pts = np.array(pontos, np.int32)
+        # Escala os pontos para o tamanho do frame atual
+        scaled_points = []
+        for pt in pontos:
+            x_scaled = int(pt[0] * frame_width / IMG_WIDTH)
+            y_scaled = int(pt[1] * frame_height / IMG_HEIGHT)
+            scaled_points.append((x_scaled, y_scaled))
+
+        pts = np.array(scaled_points, np.int32)
         pts = pts.reshape((-1, 1, 2))
 
         # Cria uma máscara da vaga
@@ -30,7 +38,7 @@ def verificarVaga(imgPro):
         count = cv2.countNonZero(vagaArea)
 
         # Define estado da vaga
-        if count < 2000:
+        if count < 40000:
             color = (0, 255, 0)  # Livre
             espessura = 5
             contadorEspaco += 1
@@ -57,6 +65,8 @@ while True:
         print("Falha ao capturar vídeo.")
         break
 
+    frame_height, frame_width = img.shape[:2]
+
     # Pré-processamento da imagem
     imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     imgBlur = cv2.GaussianBlur(imgGray, (3, 3), 1)
@@ -65,8 +75,8 @@ while True:
     kernel = np.ones((3, 3), np.uint8)
     imgDilatada = cv2.dilate(imgMedio, kernel, iterations=1)
 
-    # Verifica as vagas
-    verificarVaga(imgDilatada)
+    # Verifica as vagas com escalonamento
+    verificarVaga(imgDilatada, frame_width, frame_height)
 
     # Mostra o resultado
     cv2.imshow("Detecção de Vagas", img)
@@ -75,6 +85,5 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# Libera os recursos
 cap.release()
 cv2.destroyAllWindows()

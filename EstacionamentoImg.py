@@ -1,38 +1,72 @@
 import cv2
 import pickle
+import numpy as np
 
-largura, altura = 200,100
+IMG_PATH = 'maquete-preta.jpeg'
+POS_FILE = 'maquetepos.pkl'
 
-
+# Carrega as posições salvas
 try:
-    with open('mdf2pos', 'rb') as f:
+    with open(POS_FILE, 'rb') as f:
         posList = pickle.load(f)
 except:
     posList = []
 
+pontosTemp = []
 
-def mouseClick(events, x, y, flags, params):
-    if events == cv2.EVENT_LBUTTONDOWN:
-        posList.append((x, y))
-    if events == cv2.EVENT_RBUTTONDOWN:
-        for i, pos in enumerate(posList):
-            x1, y1 = pos
-            if x1 < x < x1 + largura and y1 < y < y1 + altura:
+
+def mouseClick(event, x, y, flags, param):
+    global pontosTemp
+    if event == cv2.EVENT_LBUTTONDOWN:
+        pontosTemp.append((x, y))
+        if len(pontosTemp) == 4:
+            posList.append(pontosTemp.copy())
+            pontosTemp = []
+            salvar()
+    elif event == cv2.EVENT_RBUTTONDOWN:
+        for i, vaga in enumerate(posList):
+            pts = np.array(vaga, dtype=np.int32)
+            if cv2.pointPolygonTest(pts, (x, y), False) >= 0:
                 posList.pop(i)
+                salvar()
+                break
 
-    with open('mdf2pos', 'wb') as f:
+
+def salvar():
+    with open(POS_FILE, 'wb') as f:
         pickle.dump(posList, f)
 
 
+# tela ocupando todo o espaço
+screen_width, screen_height = 1000, 1599
+taskbar_height = 0
+
+window_width = screen_width
+window_height = screen_height - taskbar_height
+
+cv2.namedWindow("Marcação de Vagas - 4 Pontos", cv2.WINDOW_NORMAL)
+cv2.resizeWindow("Marcação de Vagas - 4 Pontos", window_width, window_height)
+
 while True:
-    img = cv2.imread('mdf2.jpeg')
-    img = cv2.resize(img, (1200, 720))  # Redimensiona para 800x600 pixels
+    img = cv2.imread(IMG_PATH)
+    if img is None:
+        print(f"Erro ao carregar imagem: {IMG_PATH}")
+        break
 
-    for pos in posList:
-        cv2.rectangle(img, pos, (pos[0] + largura, pos[1] + altura), (255, 0, 255), 2)
+    img = cv2.resize(img, (window_width, window_height))
 
-    cv2.imshow("Image", img)
-    cv2.setMouseCallback("Image", mouseClick)
+    for vaga in posList:
+        pts = np.array(vaga, np.int32)
+        pts = pts.reshape((-1, 1, 2))
+        cv2.polylines(img, [pts], isClosed=True,
+                      color=(255, 0, 255), thickness=2)
+
+    for pt in pontosTemp:
+        cv2.circle(img, pt, 5, (0, 255, 0), cv2.FILLED)
+
+    cv2.imshow("Marcação de Vagas - 4 Pontos", img)
+    cv2.setMouseCallback("Marcação de Vagas - 4 Pontos", mouseClick)
+
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

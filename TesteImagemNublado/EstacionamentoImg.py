@@ -13,31 +13,36 @@ except:
     posList = []
 
 pontosTemp = []
+modoEspecial = False  # False = normal, True = especial
+
 
 def mouseClick(event, x, y, flags, param):
-    global pontosTemp
+    global pontosTemp, modoEspecial
     if event == cv2.EVENT_LBUTTONDOWN:
         pontosTemp.append((x, y))
         if len(pontosTemp) == 4:
-            posList.append(pontosTemp.copy())
+            # Armazena como (pontos, tipo)
+            tipo = 'especial' if modoEspecial else 'normal'
+            posList.append({"pontos": pontosTemp.copy(), "tipo": tipo})
             pontosTemp = []
             salvar()
     elif event == cv2.EVENT_RBUTTONDOWN:
         for i, vaga in enumerate(posList):
-            pts = np.array(vaga, dtype=np.int32)
+            pts = np.array(vaga["pontos"], dtype=np.int32)
             if cv2.pointPolygonTest(pts, (x, y), False) >= 0:
                 posList.pop(i)
                 salvar()
                 break
 
+
 def salvar():
     with open(POS_FILE, 'wb') as f:
         pickle.dump(posList, f)
 
-#tela ocupando todo o espaço
+
+# tela ocupando todo o espaço
 screen_width, screen_height = 1920, 1080
 taskbar_height = 40
-
 window_width = screen_width
 window_height = screen_height - taskbar_height
 
@@ -53,17 +58,25 @@ while True:
     img = cv2.resize(img, (window_width, window_height))
 
     for vaga in posList:
-        pts = np.array(vaga, np.int32)
-        pts = pts.reshape((-1, 1, 2))
-        cv2.polylines(img, [pts], isClosed=True, color=(255, 0, 255), thickness=2)
+        pts = np.array(vaga["pontos"], np.int32).reshape((-1, 1, 2))
+        cor = (255, 0, 255) if vaga["tipo"] == "normal" else (255, 255, 0)
+        cv2.polylines(img, [pts], isClosed=True, color=cor, thickness=2)
 
     for pt in pontosTemp:
         cv2.circle(img, pt, 5, (0, 255, 0), cv2.FILLED)
 
+    cor_texto = (255, 0, 255) if not modoEspecial else (
+        255, 255, 0)  # magenta para normal, amarelo para especial
+    cv2.putText(img, f'Modo: {"Especial" if modoEspecial else "Normal"}',
+                (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, cor_texto, 2)
+
     cv2.imshow("Marcação de Vagas - 4 Pontos", img)
     cv2.setMouseCallback("Marcação de Vagas - 4 Pontos", mouseClick)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    key = cv2.waitKey(1) & 0xFF
+    if key == ord('q'):
         break
+    elif key == ord('e'):
+        modoEspecial = not modoEspecial  # Alterna entre normal e especial
 
 cv2.destroyAllWindows()

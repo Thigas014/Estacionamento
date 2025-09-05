@@ -3,21 +3,27 @@ import pickle
 import cvzone
 import numpy as np
 
-# Carrega imagem
-img = cv2.imread('if1TesteUmaVagaLivreNublado.jpeg')
+# Carrega imagem original
+img = cv2.imread('imgFinal.jpeg')
 if img is None:
     print("Erro ao carregar a imagem!")
     exit()
 
-# Carrega posições (agora com 'pontos' e 'tipo')
-with open('if1TesteUmaVagaLivreNublado.pkl', 'rb') as f:
-    posList = pickle.load(f)
+# Carrega posições (com resolução base salva)
+with open('imgFinal.pkl', 'rb') as f:
+    data = pickle.load(f)
+    base_width, base_height = data["resolucao"]
+    posList = data["posicoes"]
 
-# Dimensão base onde marcou
-IMG_WIDTH, IMG_HEIGHT = 1920, 1080
+frame_height, frame_width = img.shape[:2]
+
+# Define escala para exibição (para caber na tela)
+display_scale = 0.6  # 60% do tamanho original
+disp_width = int(frame_width * display_scale)
+disp_height = int(frame_height * display_scale)
 
 
-def verificarVaga(imgPro, frame_width, frame_height):
+def verificarVaga(imgPro):
     livresNormais = ocupadasNormais = 0
     livresEspeciais = ocupadasEspeciais = 0
 
@@ -25,10 +31,8 @@ def verificarVaga(imgPro, frame_width, frame_height):
         pontos = vaga["pontos"]
         tipo = vaga["tipo"]
 
-        # Escala pontos
-        scaled_points = [(int(pt[0] * frame_width / IMG_WIDTH),
-                          int(pt[1] * frame_height / IMG_HEIGHT)) for pt in pontos]
-        pts = np.array(scaled_points, np.int32).reshape((-1, 1, 2))
+        # Não é necessário escalar pontos, estamos usando resolução original
+        pts = np.array(pontos, np.int32).reshape((-1, 1, 2))
 
         # Máscara
         mascara = np.zeros_like(imgPro)
@@ -77,7 +81,6 @@ def verificarVaga(imgPro, frame_width, frame_height):
 
 
 # Pré-processamento
-frame_height, frame_width = img.shape[:2]
 imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 imgBlur = cv2.GaussianBlur(imgGray, (3, 3), 1)
 _, imgThreshold = cv2.threshold(imgBlur, 100, 255, cv2.THRESH_BINARY_INV)
@@ -85,8 +88,12 @@ imgMedio = cv2.medianBlur(imgThreshold, 5)
 kernel = np.ones((3, 3), np.uint8)
 imgDilatada = cv2.dilate(imgMedio, kernel, iterations=1)
 
-verificarVaga(imgDilatada, frame_width, frame_height)
+verificarVaga(imgDilatada)
 
-cv2.imshow("Detecção de Vagas", img)
+# Redimensiona apenas para exibição
+img_show = cv2.resize(img, (disp_width, disp_height))
+
+cv2.namedWindow("Detecção de Vagas", cv2.WINDOW_NORMAL)
+cv2.imshow("Detecção de Vagas", img_show)
 cv2.waitKey(0)
 cv2.destroyAllWindows()

@@ -2,18 +2,30 @@ import cv2
 import pickle
 import numpy as np
 
-IMG_PATH = 'if1TesteUmaVagaLivreNublado.jpeg'
-POS_FILE = 'if1TesteUmaVagaLivreNublado.pkl'
+IMG_PATH = 'imgFinal.jpeg'
+POS_FILE = 'imgFinal.pkl'
 
-# Carrega as posições salvas
+# Carrega as posições salvas (caso existam)
 try:
     with open(POS_FILE, 'rb') as f:
-        posList = pickle.load(f)
+        data = pickle.load(f)
+        posList = data["posicoes"]
+        base_res = data["resolucao"]
 except:
     posList = []
+    base_res = None  # ainda não definido
 
 pontosTemp = []
 modoEspecial = False  # False = normal, True = especial
+
+# Carrega a imagem original
+img_base = cv2.imread(IMG_PATH)
+if img_base is None:
+    print(f"Erro ao carregar imagem: {IMG_PATH}")
+    exit()
+
+# Usa a resolução real da imagem
+window_height, window_width = img_base.shape[:2]
 
 
 def mouseClick(event, x, y, flags, param):
@@ -21,7 +33,6 @@ def mouseClick(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         pontosTemp.append((x, y))
         if len(pontosTemp) == 4:
-            # Armazena como (pontos, tipo)
             tipo = 'especial' if modoEspecial else 'normal'
             posList.append({"pontos": pontosTemp.copy(), "tipo": tipo})
             pontosTemp = []
@@ -36,26 +47,19 @@ def mouseClick(event, x, y, flags, param):
 
 
 def salvar():
+    data = {
+        "resolucao": (window_width, window_height),  # resolução real
+        "posicoes": posList
+    }
     with open(POS_FILE, 'wb') as f:
-        pickle.dump(posList, f)
+        pickle.dump(data, f)
 
-
-# tela ocupando todo o espaço
-screen_width, screen_height = 1920, 1080
-taskbar_height = 40
-window_width = screen_width
-window_height = screen_height - taskbar_height
 
 cv2.namedWindow("Marcação de Vagas - 4 Pontos", cv2.WINDOW_NORMAL)
 cv2.resizeWindow("Marcação de Vagas - 4 Pontos", window_width, window_height)
 
 while True:
-    img = cv2.imread(IMG_PATH)
-    if img is None:
-        print(f"Erro ao carregar imagem: {IMG_PATH}")
-        break
-
-    img = cv2.resize(img, (window_width, window_height))
+    img = img_base.copy()
 
     for vaga in posList:
         pts = np.array(vaga["pontos"], np.int32).reshape((-1, 1, 2))
@@ -65,8 +69,7 @@ while True:
     for pt in pontosTemp:
         cv2.circle(img, pt, 5, (0, 255, 0), cv2.FILLED)
 
-    cor_texto = (255, 0, 255) if not modoEspecial else (
-        255, 255, 0)  # magenta para normal, amarelo para especial
+    cor_texto = (255, 0, 255) if not modoEspecial else (255, 255, 0)
     cv2.putText(img, f'Modo: {"Especial" if modoEspecial else "Normal"}',
                 (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, cor_texto, 2)
 
@@ -77,6 +80,6 @@ while True:
     if key == ord('q'):
         break
     elif key == ord('e'):
-        modoEspecial = not modoEspecial  # Alterna entre normal e especial
+        modoEspecial = not modoEspecial
 
 cv2.destroyAllWindows()

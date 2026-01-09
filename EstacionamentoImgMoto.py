@@ -2,11 +2,11 @@ import cv2
 import pickle
 import numpy as np
 
-# IMG_PATH = 'imgMoto.jpg'
-# POS_FILE = 'imgMoto.pkl'
+IMG_PATH = 'imgMoto.jpg'
+POS_FILE = 'imgMoto.pkl'
 
-IMG_PATH = 'teste-2.png'
-POS_FILE = 'teste-2.pkl'
+#IMG_PATH = 'teste-2.png'
+#POS_FILE = 'teste-2.pkl'
 
 # Carrega as posições salvas (caso existam)
 try:

@@ -4,13 +4,13 @@ import cvzone
 import numpy as np
 
 # Carrega imagem original
-img = cv2.imread('imgFinal.jpeg')
+img = cv2.imread('imgOcupada.jpeg')
 if img is None:
     print("Erro ao carregar a imagem!")
     exit()
 
 # Carrega posições (com resolução base salva)
-with open('imgFinal.pkl', 'rb') as f:
+with open('imgOcupada.pkl', 'rb') as f:
     data = pickle.load(f)
     base_width, base_height = data["resolucao"]
     posList = data["posicoes"]

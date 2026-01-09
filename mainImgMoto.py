@@ -8,10 +8,10 @@ import numpy as np
 RTSP_URL = 'rtsp://admin:admin123456@10.12.12.181:8554/profile0'
 
 # Arquivos usados para teste por imagem (fallback)
-#IMG_PATH = 'imgMoto.jpg'
-#PKL_PATH = 'imgMoto.pkl'
-IMG_PATH = 'teste-2.png'
-PKL_PATH = 'teste-2.pkl'
+IMG_PATH = 'imgMoto.jpg'
+PKL_PATH = 'imgMoto.pkl'
+#IMG_PATH = 'teste-2.png'
+#PKL_PATH = 'teste-2.pkl'
 
 # Exibição
 DISPLAY_WIDTH = 960

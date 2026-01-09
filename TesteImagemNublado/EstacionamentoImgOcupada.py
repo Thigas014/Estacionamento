@@ -2,8 +2,8 @@ import cv2
 import pickle
 import numpy as np
 
-IMG_PATH = 'imgFinal.jpeg'
-POS_FILE = 'imgFinal.pkl'
+IMG_PATH = 'imgOcupada.jpeg'
+POS_FILE = 'imgOcupada.pkl'
 
 # Carrega as posições salvas (caso existam)
 try:

@@ -18,7 +18,7 @@ DISPLAY_WIDTH = 960
 DISPLAY_HEIGHT = 500
 
 # Limiarização / classificação (ajuste se necessário)
-LIMIAR_MOTO_MIN = 15    # % >= isto -> considera possível moto/ocupação parcial
+LIMIAR_MOTO_MIN = 18    # % >= isto -> considera possível moto/ocupação parcial
 LIMIAR_CARRO = 25      # % >= isto -> considera carro
 
 # ------------------------------------------------

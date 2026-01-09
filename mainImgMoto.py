@@ -18,7 +18,7 @@ DISPLAY_WIDTH = 960
 DISPLAY_HEIGHT = 500
 
 # Limiarização / classificação (ajuste se necessário)
-LIMIAR_MOTO_MIN = 8    # % >= isto -> considera possível moto/ocupação parcial
+LIMIAR_MOTO_MIN = 15    # % >= isto -> considera possível moto/ocupação parcial
 LIMIAR_CARRO = 25      # % >= isto -> considera carro
 
 # ------------------------------------------------
@@ -98,6 +98,13 @@ def verificarVaga_frame(img_color, imgPro):
             livre = False
             cor = (0, 0, 255)  # vermelho = carro
             status = "OCUPADA (CARRO)"
+
+        # Ajuste de cor para vagas especiais (deficientes)
+        if tipo != "normal":
+            if livre:
+                cor = (255, 180, 0)   # azul claro (vaga especial livre)
+            else:
+                cor = (255, 255, 0)    # azul escuro (vaga especial ocupada)
 
         # Contagem por tipo
         if tipo == "normal":

@@ -5,11 +5,12 @@ import numpy as np
 
 # ---------------- CONFIGURAÇÃO ----------------
 # RTSP da câmera (modo tempo real)
-RTSP_URL = 'rtsp://admin:admin123456@10.12.12.181:8554/profile0'
+RTSP_URL = 'rtsp://admin:admin123456@10.12.15.173:8554/profile0'
+# RTSP_URL = 'rtsp://admin:admin123456@10.12.12.181:8554/profile0'
 
 # Arquivos usados para teste por imagem (fallback)
-IMG_PATH = 'imgMoto.jpg'
-PKL_PATH = 'imgMoto.pkl'
+IMG_PATH = 'imgaovivo.png'
+PKL_PATH = 'imgaovivo.pkl'
 #IMG_PATH = 'teste-2.png'
 #PKL_PATH = 'teste-2.pkl'
 

@@ -1,3 +1,4 @@
+print ("Hellow world")
 # Sistema de Monitoramento de Estacionamento
 
 Código criado como parte do projeto: "**Desenvolvimento de Sistema de Monitoramento Inteligente para Áreas Externas de Instituições Educacionais com Visão Computacional**" (2024).
